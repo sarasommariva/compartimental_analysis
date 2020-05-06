@@ -30,8 +30,8 @@ addpath(folder_func)
 load(path_data, 'mice_group_diab', 'mice_group_control', 'time')
 time_or = time'; clear time 
 
-idx_an_diab = [1:numel(mice_group_diab)];
-idx_an_control = [1:numel(mice_group_control)];
+idx_an_diab = [1];%[1:numel(mice_group_diab)];
+idx_an_control = []; [1:numel(mice_group_control)];
 
 %% Step 3. Store results
 %   3.1. Initialize
@@ -39,25 +39,27 @@ n_an_diab = numel(idx_an_diab);
 n_an_control = numel(idx_an_control);
 
 for ii = 1:numel(fields)
-    for jj = 1:numel(name_k_skf)
-        skf_diab.(fields{ii}).mean = zeros(n_an_diab, n_k_skf);
-        skf_diab.(fields{ii}).std = zeros(n_an_diab, n_k_skf);
-        skf_diab.(fields{ii}).opt = zeros(n_an_diab, n_k_skf);
+    skf_diab.(fields{ii}).mean = zeros(n_an_diab, n_k_skf);
+    skf_diab.(fields{ii}).std = zeros(n_an_diab, n_k_skf);
+    skf_diab.(fields{ii}).opt = zeros(n_an_diab, n_k_skf);
+    skf_diab.(fields{ii}).relerr_opt = zeros(n_an_diab, 1);
         
-        skf_control.(fields{ii}).mean = zeros(n_an_control, n_k_skf);
-        skf_control.(fields{ii}).std = zeros(n_an_control, n_k_skf);
-        skf_control.(fields{ii}).opt = zeros(n_an_control, n_k_skf);
-    end
-    for jj = 1:numel(name_k_bcm)
-        bcm_diab.(fields{ii}).mean = zeros(n_an_diab, n_k_bcm);
-        bcm_diab.(fields{ii}).std = zeros(n_an_diab, n_k_bcm);
-        bcm_diab.(fields{ii}).opt = zeros(n_an_diab, n_k_bcm);
+    skf_control.(fields{ii}).mean = zeros(n_an_control, n_k_skf);
+    skf_control.(fields{ii}).std = zeros(n_an_control, n_k_skf);
+    skf_control.(fields{ii}).opt = zeros(n_an_control, n_k_skf);
+    skf_control.(fields{ii}).relerr_opt = zeros(n_an_control, 1);
+    
+    bcm_diab.(fields{ii}).mean = zeros(n_an_diab, n_k_bcm);
+    bcm_diab.(fields{ii}).std = zeros(n_an_diab, n_k_bcm);
+    bcm_diab.(fields{ii}).opt = zeros(n_an_diab, n_k_bcm);
+    bcm_control.(fields{ii}).relerr_opt = zeros(n_an_diab, 1);
         
-        bcm_control.(fields{ii}).mean = zeros(n_an_control, n_k_bcm);
-        bcm_control.(fields{ii}).std = zeros(n_an_control, n_k_bcm);
-        bcm_control.(fields{ii}).opt = zeros(n_an_control, n_k_bcm);
+    bcm_control.(fields{ii}).mean = zeros(n_an_control, n_k_bcm);
+    bcm_control.(fields{ii}).std = zeros(n_an_control, n_k_bcm);
+    bcm_control.(fields{ii}).opt = zeros(n_an_control, n_k_bcm);
+    bcm_control.(fields{ii}).relerr_opt = zeros(n_an_control, 1);
         
-    end
+    
 end
 
 %   3.2. Results
@@ -96,6 +98,8 @@ for im = 1:n_an_diab+n_an_control
             [~, idx_skf] = min(ris.fields{ii}.relerr_skf);
             skf_diab.(fields{ii}).opt(im, jj) = ...
                 ris.fields{ii}.(aux_name_k)(idx_skf);
+            skf_diab.(fields{ii}).relerr_opt(im) = ...
+                ris.fields{ii}.relerr_skf(idx_skf);
             else
     %  - Mean and std of k over ripetition
             skf_control.(fields{ii}).mean(im-n_an_diab, jj) = ...
@@ -106,6 +110,8 @@ for im = 1:n_an_diab+n_an_control
             [~, idx_skf] = min(ris.fields{ii}.relerr_skf);
             skf_control.(fields{ii}).opt(im-n_an_diab, jj) = ...
                 ris.fields{ii}.(aux_name_k)(idx_skf);
+            skf_control.(fields{ii}).relerr_opt(im-n_an_diab) = ...
+                ris.fields{ii}.relerr_skf(idx_skf);
             end
         end
         
@@ -155,6 +161,7 @@ for im = 1:n_an_diab+n_an_control
                      aux_k_s(1), aux_k_s(2), aux_k_s(3), aux_k_s(4));
         ct_rec_bcm_mean = forward_BCM(c_if, Vb, Vi, v, time, t_0, C_0_bcm, ...
                      aux_k_b(1), aux_k_b(2), aux_k_b(3), aux_k_b(4), aux_k_b(5));
+        
         % Reconstructed (optimel k over ripetition)
         if im <= n_an_diab
             aux_k_s = skf_diab.(fields{ii}).opt(im, :);
@@ -167,7 +174,7 @@ for im = 1:n_an_diab+n_an_control
                      aux_k_s(1), aux_k_s(2), aux_k_s(3), aux_k_s(4));
         ct_rec_bcm_opt = forward_BCM(c_if, Vb, Vi, v, time, t_0, C_0_bcm, ...
                      aux_k_b(1), aux_k_b(2), aux_k_b(3), aux_k_b(4), aux_k_b(5));
-
+        
         subplot(2, 2, 2*ii-1)
         hold on
         plot(time, ris.fields{ii}.c_totx_skf, 'Color', [255, 204, 203]/255, ...
