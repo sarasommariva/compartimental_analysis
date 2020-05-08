@@ -31,7 +31,7 @@ load(path_data, 'mice_group_diab', 'mice_group_control', 'time')
 time_or = time'; clear time 
 
 idx_an_diab = [1:numel(mice_group_diab)];
-idx_an_control = [1:numel(mica_group_control)];
+idx_an_control = [1:numel(mice_group_control)];
 
 %% Step 3. Store results
 %   3.1. Initialize
