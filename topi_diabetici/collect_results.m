@@ -30,8 +30,8 @@ addpath(folder_func)
 load(path_data, 'mice_group_diab', 'mice_group_control', 'time')
 time_or = time'; clear time 
 
-idx_an_diab = [1];%[1:numel(mice_group_diab)];
-idx_an_control = []; [1:numel(mice_group_control)];
+idx_an_diab = [1:numel(mice_group_diab)];
+idx_an_control = [1:numel(mica_group_control)];
 
 %% Step 3. Store results
 %   3.1. Initialize
@@ -91,27 +91,27 @@ for im = 1:n_an_diab+n_an_control
             if im <= n_an_diab
     %  - Mean and std of k over ripetition
             skf_diab.(fields{ii}).mean(im, jj) = ...
-                mean(ris.fields{ii}.(aux_name_k));
+                mean(ris.(fields{ii}).(aux_name_k));
             skf_diab.(fields{ii}).std(im, jj) = ...
-                std(ris.fields{ii}.(aux_name_k));
+                std(ris.(fields{ii}).(aux_name_k));
     %   - Optimal k 
-            [~, idx_skf] = min(ris.fields{ii}.relerr_skf);
+            [~, idx_skf] = min(ris.(fields{ii}).relerr_skf);
             skf_diab.(fields{ii}).opt(im, jj) = ...
-                ris.fields{ii}.(aux_name_k)(idx_skf);
+                ris.(fields{ii}).(aux_name_k)(idx_skf);
             skf_diab.(fields{ii}).relerr_opt(im) = ...
-                ris.fields{ii}.relerr_skf(idx_skf);
+                ris.(fields{ii}).relerr_skf(idx_skf);
             else
     %  - Mean and std of k over ripetition
             skf_control.(fields{ii}).mean(im-n_an_diab, jj) = ...
-                mean(ris.fields{ii}.(aux_name_k));
+                mean(ris.(fields{ii}).(aux_name_k));
             skf_control.(fields{ii}).std(im-n_an_diab, jj) = ...
-                std(ris.fields{ii}.(aux_name_k));
+                std(ris.(fields{ii}).(aux_name_k));
     %   - Optimal k 
-            [~, idx_skf] = min(ris.fields{ii}.relerr_skf);
+            [~, idx_skf] = min(ris.(fields{ii}).relerr_skf);
             skf_control.(fields{ii}).opt(im-n_an_diab, jj) = ...
-                ris.fields{ii}.(aux_name_k)(idx_skf);
+                ris.(fields{ii}).(aux_name_k)(idx_skf);
             skf_control.(fields{ii}).relerr_opt(im-n_an_diab) = ...
-                ris.fields{ii}.relerr_skf(idx_skf);
+                ris.(fields{ii}).relerr_skf(idx_skf);
             end
         end
         
@@ -121,23 +121,23 @@ for im = 1:n_an_diab+n_an_control
             if im <= n_an_diab
     %  - Mean and std of k over ripetition
             bcm_diab.(fields{ii}).mean(im, jj) = ...
-                mean(ris.fields{ii}.(aux_name_k));
+                mean(ris.(fields{ii}).(aux_name_k));
             bcm_diab.(fields{ii}).std(im, jj) = ...
-                std(ris.fields{ii}.(aux_name_k));
+                std(ris.(fields{ii}).(aux_name_k));
     %   - Optimal k 
-            [~, idx_bcm] = min(ris.fields{ii}.relerr_bcm);
+            [~, idx_bcm] = min(ris.(fields{ii}).relerr_bcm);
             bcm_diab.(fields{ii}).opt(im, jj) = ...
-                ris.fields{ii}.(aux_name_k)(idx_bcm);
+                ris.(fields{ii}).(aux_name_k)(idx_bcm);
             else
     %  - Mean and std of k over ripetition
             bcm_control.(fields{ii}).mean(im-n_an_diab, jj) = ...
-                mean(ris.fields{ii}.(aux_name_k));
+                mean(ris.(fields{ii}).(aux_name_k));
             bcm_control.(fields{ii}).std(im-n_an_diab, jj) = ...
-                std(ris.fields{ii}.(aux_name_k));
+                std(ris.(fields{ii}).(aux_name_k));
     %   - Optimal k 
-            [~, idx_bcm] = min(ris.fields{ii}.relerr_bcm);
+            [~, idx_bcm] = min(ris.(fields{ii}).relerr_bcm);
             bcm_control.(fields{ii}).opt(im-n_an_diab, jj) = ...
-                ris.fields{ii}.(aux_name_k)(idx_bcm);
+                ris.(fields{ii}).(aux_name_k)(idx_bcm);
             end  
         end
         
@@ -177,7 +177,7 @@ for im = 1:n_an_diab+n_an_control
         
         subplot(2, 2, 2*ii-1)
         hold on
-        plot(time, ris.fields{ii}.c_totx_skf, 'Color', [255, 204, 203]/255, ...
+        plot(time, ris.(fields{ii}).c_totx_skf, 'Color', [255, 204, 203]/255, ...
             'Linewidth', 2, 'HandleVisibility','off')
         plot(time, c_tot, 'k', 'Linewidth', 2, 'Displayname', 'True')
         plot(time, ct_rec_skf_mean, 'r--', 'Linewidth', 2, ...
@@ -194,7 +194,7 @@ for im = 1:n_an_diab+n_an_control
 
         subplot(2, 2, 2*ii)
         hold on
-        plot(time, ris.fields{ii}.c_totx_bcm, 'Color', [208, 240, 192]/255, ...
+        plot(time, ris.(fields{ii}).c_totx_bcm, 'Color', [208, 240, 192]/255, ...
             'Linewidth', 2, 'HandleVisibility','off')
         plot(time, c_tot, 'k', 'Linewidth', 2, 'Displayname', 'True')
         plot(time, ct_rec_bcm_mean, 'g--', 'Linewidth', 2, ...
