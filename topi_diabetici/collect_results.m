@@ -170,9 +170,11 @@ for im = 1:n_an_diab+n_an_control
             aux_k_s = skf_control.(fields{ii}).opt(im-n_an_diab, :);
             aux_k_b = bcm_control.(fields{ii}).opt(im-n_an_diab, :);
         end
-        ct_rec_skf_opt = forward_Skf(c_if, Vb, Vi, time, t_0, C_0_skf, ...
+        [ct_rec_skf_opt, c_rec_skf_opt.(fields{ii})] = ...
+                    forward_Skf(c_if, Vb, Vi, time, t_0, C_0_skf, ...
                      aux_k_s(1), aux_k_s(2), aux_k_s(3), aux_k_s(4));
-        ct_rec_bcm_opt = forward_BCM(c_if, Vb, Vi, v, time, t_0, C_0_bcm, ...
+        [ct_rec_bcm_opt, c_rec_bcm_opt.(fields{ii})] = ...
+                    forward_BCM(c_if, Vb, Vi, v, time, t_0, C_0_bcm, ...
                      aux_k_b(1), aux_k_b(2), aux_k_b(3), aux_k_b(4), aux_k_b(5));
         
         subplot(2, 2, 2*ii-1)
@@ -213,8 +215,49 @@ for im = 1:n_an_diab+n_an_control
     
     saveas(f_ris, fullfile(folder_figures, ...
                     sprintf('result_%s.png', mouse.name)))
+                
+%% Step 5. Plot concentrations
+    f_conc = figure('units', 'normalized', 'outerposition',[0 0 1 1]);
+    conc = {'C_f(t)', 'C_p(t)', 'C_r(t)'};
+    % skf
+    for ic = 1:2
+        subplot(3, 2, 2*ic-1)
+        hold on
+        plot(time, c_rec_skf_opt.ant(ic, :), 'k', 'Linewidth', 2, ...
+            'Displayname', 'Ant');
+        plot(time, c_rec_skf_opt.post(ic, :), 'r', 'Linewidth', 2, ...
+            'Displayname', 'Post');
+        lgd = legend('show');
+        set(lgd, 'Location', 'Best', 'Fontsize', 15)
+        ylabel(conc{ic}, 'Fontsize', 18)
+        if ic == 2
+            xlabel('Time [min]', 'Fontsize', 18)
+        elseif ic == 1
+            title(mouse.name, 'Fontsize', 18)
+        end
+    end
+    % bcm
+    for ic = 1:3
+        subplot(3, 2, 2*ic)
+        hold on
+        plot(time, c_rec_bcm_opt.ant(ic, :), 'k', 'Linewidth', 2, ...
+            'Displayname', 'Ant');
+        plot(time, c_rec_bcm_opt.post(ic, :), 'r', 'Linewidth', 2, ...
+            'Displayname', 'Post');
+        lgd = legend('show');
+        set(lgd, 'Location', 'Best', 'Fontsize', 15)
+        ylabel(conc{ic}, 'Fontsize', 18)
+        if ic == 2
+            xlabel('Time [min]', 'Fontsize', 18)
+        end
+    end
+    
+    saveas(f_conc, fullfile(folder_figures, ...
+                   sprintf('result_conc_%s.png', mouse.name)))
+
     pause(0.1)
     close(f_ris)
+    close(f_conc)
     
 end
 
