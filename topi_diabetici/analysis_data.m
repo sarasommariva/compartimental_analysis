@@ -1,8 +1,7 @@
 %% Domanda: 
 % (1) Devo controllare le unità di misura
 % (2) Fare anche la parte wb?
-% (3) Ho sbagliato il nome dato ai campi di ris 
-% (4) Forse dovrei salvare i parametri utilizzati (Vb, Vi, v, da qlc parte)
+% (3) Forse dovrei salvare i parametri utilizzati (Vb, Vi, v, da qlc parte)
 
 clc
 clear
@@ -100,8 +99,3 @@ for im = 1:n_an_diab+n_an_control
     clear c_if
 
 end
-
-
-
-
-
