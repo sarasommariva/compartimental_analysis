@@ -58,8 +58,6 @@ for ii = 1:numel(fields)
     bcm_control.(fields{ii}).std = zeros(n_an_control, n_k_bcm);
     bcm_control.(fields{ii}).opt = zeros(n_an_control, n_k_bcm);
     bcm_control.(fields{ii}).relerr_opt = zeros(n_an_control, 1);
-        
-    
 end
 
 %   3.2. Results
@@ -116,6 +114,10 @@ for im = 1:n_an_diab+n_an_control
         end
         
 %%      Bcm model
+        cond_idx = find(ris.(fields{ii}).k5x_bcm>0.1);
+        [~, aux_idx_bcm] = min(ris.(fields{ii}).relerr_bcm(cond_idx));
+        idx_bcm = cond_idx(aux_idx_bcm);
+
         for jj = 1:numel(name_k_bcm)
             aux_name_k = sprintf('%sx_bcm', name_k_bcm{jj});
             if im <= n_an_diab
@@ -125,7 +127,6 @@ for im = 1:n_an_diab+n_an_control
             bcm_diab.(fields{ii}).std(im, jj) = ...
                 std(ris.(fields{ii}).(aux_name_k));
     %   - Optimal k 
-            [~, idx_bcm] = min(ris.(fields{ii}).relerr_bcm);
             bcm_diab.(fields{ii}).opt(im, jj) = ...
                 ris.(fields{ii}).(aux_name_k)(idx_bcm);
             else
@@ -135,7 +136,6 @@ for im = 1:n_an_diab+n_an_control
             bcm_control.(fields{ii}).std(im-n_an_diab, jj) = ...
                 std(ris.(fields{ii}).(aux_name_k));
     %   - Optimal k 
-            [~, idx_bcm] = min(ris.(fields{ii}).relerr_bcm);
             bcm_control.(fields{ii}).opt(im-n_an_diab, jj) = ...
                 ris.(fields{ii}).(aux_name_k)(idx_bcm);
             end  
@@ -270,77 +270,3 @@ ris_all.bcm_diab = bcm_diab;
 ris_all.bcm_control = bcm_control;
 
 save(fullfile(folder_results, 'ris_all_mouse'), 'ris_all')
-
-
-% 
-% figure
-% for jj = 1:numel(name_k_skf)
-%     subplot(numel(name_k_skf), 2, 2*jj-1)
-%     errorbar(1:n_an_diab, skf_diab.ant.(name_k_skf{jj}).mean, ...
-%         skf_diab.ant.(name_k_skf{jj}).std, 'Linewidth', 2, 'Displayname', 'Ant')
-%     hold on
-%     errorbar(1:n_an_diab, skf_diab.post.(name_k_skf{jj}).mean, ...
-%         skf_diab.post.(name_k_skf{jj}).std, 'Linewidth', 2, 'Displayname', 'Post')
-%     
-%     subplot(numel(name_k_skf), 2, 2*jj)
-%     errorbar(1:n_an_control, skf_control.ant.(name_k_skf{jj}).mean, ...
-%         skf_control.ant.(name_k_skf{jj}).std, 'Linewidth', 2, 'Displayname', 'Ant')
-%     hold on
-%     errorbar(1:n_an_control, skf_control.post.(name_k_skf{jj}).mean, ...
-%         skf_control.post.(name_k_skf{jj}).std, 'Linewidth', 2, 'Displayname', 'Post')
-%     
-% end
-% 
-% figure
-% for jj = 1:numel(name_k_skf)
-%     subplot(numel(name_k_skf), 2, 2*jj-1)
-%     plot(1:n_an_diab, skf_diab.ant.(name_k_skf{jj}).opt, ...
-%             'Linewidth', 2, 'Displayname', 'Ant')
-%     hold on
-%     plot(1:n_an_diab, skf_diab.post.(name_k_skf{jj}).opt, ...
-%             'Linewidth', 2, 'Displayname', 'Post')
-%     
-%     subplot(numel(name_k_skf), 2, 2*jj)
-%     plot(1:n_an_control, skf_control.ant.(name_k_skf{jj}).opt, ...
-%             'Linewidth', 2, 'Displayname', 'Ant')
-%     hold on
-%     plot(1:n_an_control, skf_control.post.(name_k_skf{jj}).opt, ...
-%             'Linewidth', 2, 'Displayname', 'Post')
-%     
-% end
-% 
-% figure
-% for jj = 1:numel(name_k_bcm)
-%     subplot(numel(name_k_bcm), 2, 2*jj-1)
-%     errorbar(1:n_an_diab, bcm_diab.ant.(name_k_bcm{jj}).mean, ...
-%         bcm_diab.ant.(name_k_bcm{jj}).std, 'Linewidth', 2, 'Displayname', 'Ant')
-%     hold on
-%     errorbar(1:n_an_diab, bcm_diab.post.(name_k_bcm{jj}).mean, ...
-%         bcm_diab.post.(name_k_bcm{jj}).std, 'Linewidth', 2, 'Displayname', 'Post')
-%     
-%     subplot(numel(name_k_bcm), 2, 2*jj)
-%     errorbar(1:n_an_control, bcm_control.ant.(name_k_bcm{jj}).mean, ...
-%         bcm_control.ant.(name_k_bcm{jj}).std, 'Linewidth', 2, 'Displayname', 'Ant')
-%     hold on
-%     errorbar(1:n_an_control, bcm_control.post.(name_k_bcm{jj}).mean, ...
-%         bcm_control.post.(name_k_bcm{jj}).std, 'Linewidth', 2, 'Displayname', 'Post')
-%     
-% end
-% 
-% figure
-% for jj = 1:numel(name_k_bcm)
-%     subplot(numel(name_k_bcm), 2, 2*jj-1)
-%     plot(1:n_an_diab, bcm_diab.ant.(name_k_bcm{jj}).opt, ...
-%             'Linewidth', 2, 'Displayname', 'Ant')
-%     hold on
-%     plot(1:n_an_diab, bcm_diab.post.(name_k_bcm{jj}).opt, ...
-%             'Linewidth', 2, 'Displayname', 'Post')
-%     
-%     subplot(numel(name_k_bcm), 2, 2*jj)
-%     plot(1:n_an_control, bcm_control.ant.(name_k_bcm{jj}).opt, ...
-%             'Linewidth', 2, 'Displayname', 'Ant')
-%     hold on
-%     plot(1:n_an_control, bcm_control.post.(name_k_bcm{jj}).opt, ...
-%             'Linewidth', 2, 'Displayname', 'Post')
-%     
-% end
