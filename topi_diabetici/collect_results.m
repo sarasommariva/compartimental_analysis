@@ -114,7 +114,7 @@ for im = 1:n_an_diab+n_an_control
         end
         
 %%      Bcm model
-        cond_idx = find(ris.(fields{ii}).k5x_bcm>0.1);
+        cond_idx = find(ris.(fields{ii}).k5x_bcm>=0.1);
         [~, aux_idx_bcm] = min(ris.(fields{ii}).relerr_bcm(cond_idx));
         idx_bcm = cond_idx(aux_idx_bcm);
 
@@ -129,6 +129,8 @@ for im = 1:n_an_diab+n_an_control
     %   - Optimal k 
             bcm_diab.(fields{ii}).opt(im, jj) = ...
                 ris.(fields{ii}).(aux_name_k)(idx_bcm);
+            bcm_diab.(fields{ii}).relerr_opt(im) = ...
+                ris.(fields{ii}).relerr_bcm(idx_bcm);
             else
     %  - Mean and std of k over ripetition
             bcm_control.(fields{ii}).mean(im-n_an_diab, jj) = ...
@@ -138,6 +140,8 @@ for im = 1:n_an_diab+n_an_control
     %   - Optimal k 
             bcm_control.(fields{ii}).opt(im-n_an_diab, jj) = ...
                 ris.(fields{ii}).(aux_name_k)(idx_bcm);
+            bcm_control.(fields{ii}).relerr_opt(im-n_an_diab) = ...
+                ris.(fields{ii}).relerr_bcm(idx_bcm);
             end  
         end
         
@@ -218,7 +222,7 @@ for im = 1:n_an_diab+n_an_control
                 
 %% Step 5. Plot concentrations
     f_conc = figure('units', 'normalized', 'outerposition',[0 0 1 1]);
-    conc = {'C_f(t)', 'C_p(t)', 'C_r(t)'};
+    conc = {'C_f(t) [kBq/mL]', 'C_p(t) [kBq/mL]', 'C_r(t) [kBq/mL]'};
     % skf
     for ic = 1:2
         subplot(3, 2, 2*ic-1)
@@ -227,13 +231,14 @@ for im = 1:n_an_diab+n_an_control
             'Displayname', 'Ant');
         plot(time, c_rec_skf_opt.post(ic, :), 'r', 'Linewidth', 2, ...
             'Displayname', 'Post');
+        set(gca, 'Fontsize', 13)
         lgd = legend('show');
         set(lgd, 'Location', 'Best', 'Fontsize', 15)
         ylabel(conc{ic}, 'Fontsize', 18)
         if ic == 2
-            xlabel('Time [min]', 'Fontsize', 18)
+            xlabel('Time t [min]', 'Fontsize', 18)
         elseif ic == 1
-            title(mouse.name, 'Fontsize', 18)
+            title(sprintf('%s - skf', mouse.name), 'Fontsize', 18, 'Interpreter', 'None')
         end
     end
     % bcm
@@ -244,11 +249,14 @@ for im = 1:n_an_diab+n_an_control
             'Displayname', 'Ant');
         plot(time, c_rec_bcm_opt.post(ic, :), 'r', 'Linewidth', 2, ...
             'Displayname', 'Post');
+        set(gca, 'Fontsize', 13)
         lgd = legend('show');
         set(lgd, 'Location', 'Best', 'Fontsize', 15)
         ylabel(conc{ic}, 'Fontsize', 18)
-        if ic == 2
-            xlabel('Time [min]', 'Fontsize', 18)
+        if ic == 1
+            title('bcm', 'Fontsize', 18)
+        elseif ic == 3
+            xlabel('Time t [min]', 'Fontsize', 18)
         end
     end
     
